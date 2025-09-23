@@ -11,28 +11,14 @@
   ],
 
   "host_permissions": [
-    "*://animevietsub.com/*",
-    "*://www.animevietsub.com/*",
-    "*://animevietsub.tv/*",
-    "*://www.animevietsub.tv/*",
-    "*://animevietsub.net/*",
-    "*://www.animevietsub.net/*",
-    "*://animevietsub.cam/*",
-    "*://www.animevietsub.cam/*",
     "*://anilist.co/*",
-    "*://graphql.anilist.co/*"
+    "*://graphql.anilist.co/*",
+    "*://animevietsub.show/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "*://animevietsub.com/*",
-        "*://www.animevietsub.com/*",
-        "*://animevietsub.tv/*",
-        "*://www.animevietsub.tv/*",
-        "*://animevietsub.net/*",
-        "*://www.animevietsub.net/*",
-        "*://animevietsub.cam/*",
-        "*://www.animevietsub.cam/*"
+      "*://animevietsub.show/*"
       ],
       "js": ["content.js"],
       "run_at": "document_end"
@@ -61,14 +47,7 @@
     {
       "resources": ["injected.js"],
       "matches": [
-        "*://animevietsub.com/*",
-        "*://www.animevietsub.com/*",
-        "*://animevietsub.tv/*",
-        "*://www.animevietsub.tv/*",
-        "*://animevietsub.net/*",
-        "*://www.animevietsub.net/*",
-        "*://animevietsub.cam/*",
-        "*://www.animevietsub.cam/*"
+      "*://animevietsub.show/*"
       ]
     }
   ]

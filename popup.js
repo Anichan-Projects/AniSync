@@ -31,7 +31,7 @@ const translations = {
     notifications: "Thông báo",
     publicActivity: "Tạo activity công khai",
     language: "Ngôn ngữ",
-    openSettings: "Cài đặt Client ID & Secret",
+    openSettings: "Cài đặt",
     
     // Footer
     footer: "AniSync v1.0.0 • Made with ❤️",
@@ -97,7 +97,7 @@ const translations = {
     notifications: "Notifications",
     publicActivity: "Create public activity",
     language: "Language",
-    openSettings: "Setup Client ID & Secret",
+    openSettings: "Setup",
     
     // Footer
     footer: "AniSync v1.0.0 • Made with ❤️",
