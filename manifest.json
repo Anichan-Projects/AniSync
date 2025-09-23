@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "AniSync",
+  "version": "1.0.0",
+  "description": "Tự động đồng bộ lịch sử xem anime từ Animevietsub lên AniList",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "identity",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "*://animevietsub.com/*",
+    "*://www.animevietsub.com/*",
+    "*://animevietsub.tv/*",
+    "*://www.animevietsub.tv/*",
+    "*://animevietsub.net/*",
+    "*://www.animevietsub.net/*",
+    "*://animevietsub.cam/*",
+    "*://www.animevietsub.cam/*",
+    "*://anilist.co/*",
+    "*://graphql.anilist.co/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://animevietsub.com/*",
+        "*://www.animevietsub.com/*",
+        "*://animevietsub.tv/*",
+        "*://www.animevietsub.tv/*",
+        "*://animevietsub.net/*",
+        "*://www.animevietsub.net/*",
+        "*://animevietsub.cam/*",
+        "*://www.animevietsub.cam/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AniList Sync",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["injected.js"],
+      "matches": [
+        "*://animevietsub.com/*",
+        "*://www.animevietsub.com/*",
+        "*://animevietsub.tv/*",
+        "*://www.animevietsub.tv/*",
+        "*://animevietsub.net/*",
+        "*://www.animevietsub.net/*",
+        "*://animevietsub.cam/*",
+        "*://www.animevietsub.cam/*"
+      ]
+    }
+  ]
+}
