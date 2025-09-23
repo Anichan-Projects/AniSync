@@ -224,6 +224,7 @@ MIT License - xem [LICENSE](LICENSE) để biết thêm chi tiết.
 ---
 > [!NOTE]  
 > Vì đa số là vibe code nên comment code chưa chuẩn, mọi người thông cảm.
+
 > [!WARNING]  
 > Extension này được tạo ra để phục vụ cộng đồng miễn phí, nếu thấy ai đó bán extension này, liên hệ với chúng tôi tại [Discord](https://discord.gg/PE29XWTTc5).
 
