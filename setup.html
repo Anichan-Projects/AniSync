@@ -284,6 +284,15 @@
       cursor: not-allowed;
     }
 
+    .btn-secondary {
+      background: #6c757d;
+      margin-bottom: 20px;
+    }
+
+    body.dark-theme .btn-secondary {
+      background: #495057;
+    }
+
     .error {
       color: #dc3545;
       background: #f8d7da;
@@ -412,6 +421,11 @@
             <label for="redirectUrl" data-translate="setup.form.redirectUrl">Redirect URL</label>
             <input type="url" id="redirectUrl" name="redirectUrl" value="" required readonly>
             <div class="help-text" data-translate="setup.form.redirectUrlHelp">This must match exactly in your AniList app settings</div>
+          </div>
+
+          <div class="form-group">
+            <button type="button" class="btn btn-secondary" id="manageDomains" data-translate="setup.form.manageDomains">Manage Custom Domains</button>
+            <div class="help-text" data-translate="setup.form.manageDomainsHelp">Configure custom AnimeVietSub domains if the extension doesn't work automatically</div>
           </div>
 
           <button type="submit" class="btn" data-translate="setup.form.submit">Save Configuration</button>

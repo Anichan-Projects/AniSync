@@ -52,6 +52,9 @@ class AnimeVsubTracker {
       if (message.action === 'languageChanged') {
         this.language = message.language;
         sendResponse({ success: true });
+      } else if (message.action === 'ping') {
+        // Respond to ping to indicate content script is loaded
+        sendResponse({ success: true, loaded: true });
       }
     });
     

@@ -20,6 +20,8 @@ const setupTranslations = {
     'setup.form.clientSecretHelp': 'Giữ bí mật và không chia sẻ với ai',
     'setup.form.redirectUrl': 'Redirect URL',
     'setup.form.redirectUrlHelp': 'Phải khớp chính xác trong cài đặt ứng dụng AniList của bạn',
+    'setup.form.manageDomains': 'Quản lý tên miền tùy chỉnh',
+    'setup.form.manageDomainsHelp': 'Cấu hình các tên miền AnimeVietSub tùy chỉnh nếu extension không hoạt động tự động',
     'setup.form.submit': 'Lưu Cấu hình',
     'setup.error.validation': 'Vui lòng điền đầy đủ tất cả các trường',
     'setup.error.clientId': 'Client ID không hợp lệ',
@@ -51,6 +53,8 @@ const setupTranslations = {
     'setup.form.clientSecretHelp': 'Keep this secret and don\'t share it',
     'setup.form.redirectUrl': 'Redirect URL',
     'setup.form.redirectUrlHelp': 'This must match exactly in your AniList app settings',
+    'setup.form.manageDomains': 'Manage Custom Domains',
+    'setup.form.manageDomainsHelp': 'Configure custom AnimeVietSub domains if extension doesn\'t work automatically',
     'setup.form.submit': 'Save Configuration',
     'setup.error.validation': 'Please fill in all required fields',
     'setup.error.clientId': 'Invalid Client ID format',
@@ -175,6 +179,11 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   currentTheme = currentTheme === 'light' ? 'dark' : 'light';
   chrome.storage.local.set({ theme: currentTheme });
   updateTheme();
+});
+
+// Manage domains button
+document.getElementById('manageDomains').addEventListener('click', () => {
+  chrome.tabs.create({ url: 'domains.html' });
 });
 
 // Load existing credentials function

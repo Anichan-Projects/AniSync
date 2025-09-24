@@ -568,6 +568,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
           break;
 
+        case 'updateCustomDomains':
+          try {
+            const { customDomains } = request;
+            console.log('Updating custom domains:', customDomains);
+            
+            if (!Array.isArray(customDomains)) {
+              throw new Error('customDomains must be an array');
+            }
+            
+            await chrome.storage.local.set({ customDomains });
+            console.log('Custom domains saved to storage successfully');
+            
+            // Re-inject content scripts for new domains
+            setTimeout(() => {
+              injectContentScriptForCustomDomains();
+            }, 500);
+            
+            sendResponse({ success: true, message: 'Custom domains updated' });
+          } catch (updateError) {
+            console.error('Update custom domains error:', updateError);
+            sendResponse({ success: false, error: updateError.message });
+          }
+          return true; // Keep message channel open for async response
+          break;
+
+        case 'getCustomDomains':
+          try {
+            const result = await chrome.storage.local.get(['customDomains']);
+            console.log('Retrieved custom domains from storage:', result.customDomains);
+            sendResponse({ success: true, customDomains: result.customDomains || [] });
+          } catch (getError) {
+            console.error('Get custom domains error:', getError);
+            sendResponse({ success: false, error: getError.message });
+          }
+          return true; // Keep message channel open for async response
+          break;
+
         default:
           sendResponse({ success: false, error: 'Unknown action' });
       }
@@ -578,6 +615,157 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   })();
   
   return true; // Giữ message channel mở cho async response
+});
+
+// Function to inject content script into tabs matching AnimeVietSub domains
+async function injectContentScriptForCustomDomains() {
+  try {
+    console.log('Scanning existing tabs for AnimeVietSub domains...');
+
+    // Get all tabs
+    const tabs = await chrome.tabs.query({});
+    
+    for (const tab of tabs) {
+      if (!tab.url) continue;
+      
+      try {
+        // Check if URL matches AnimeVietSub patterns (automatic detection)
+        const isAnimeVietSub = isAnimeVietSubDomain(tab.url);
+        
+        // Also check custom domains
+        const result = await chrome.storage.local.get(['customDomains']);
+        const customDomains = result.customDomains || [];
+        
+        const matchesCustomDomain = customDomains.some(domain => {
+          try {
+            const tabUrl = new URL(tab.url);
+            const customUrl = new URL(domain);
+            return tabUrl.hostname === customUrl.hostname;
+          } catch (e) {
+            return false;
+          }
+        });
+
+        if (isAnimeVietSub || matchesCustomDomain) {
+          console.log(`Found AnimeVietSub tab: ${tab.url} (auto: ${isAnimeVietSub}, custom: ${matchesCustomDomain})`);
+          
+          // Check if content script is already injected
+          try {
+            await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+          } catch (e) {
+            // Content script not present, inject it
+            try {
+              await chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                files: ['content.js']
+              });
+              console.log(`Content script injected successfully into ${tab.url}`);
+            } catch (injectError) {
+              console.log(`Failed to inject content script into ${tab.url}:`, injectError);
+            }
+          }
+        }
+      } catch (urlError) {
+        // Invalid URL, skip
+        continue;
+      }
+    }
+  } catch (error) {
+    console.error('Error injecting content scripts:', error);
+  }
+}
+
+// Function to check if URL matches AnimeVietSub patterns
+function isAnimeVietSubDomain(url) {
+  if (!url) return false;
+  
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    // Enhanced patterns to detect AnimeVietSub domains
+    const animeVietSubPatterns = [
+      // Main patterns
+      /animevietsub\.(show|tv|com|net|org|info|me|vn|cc|xyz|biz|co|io)/,
+      
+      // Generic anime
+      /anime.*viet.*sub/,
+      /viet.*anime.*sub/,
+      /anime.*vsub/,
+      /vsub.*anime/,
+      
+      // Domain with numbers
+      /animevietsub\d+\.(tv|com|net|org|show)/,
+      /avs\d+\.(tv|com|net|org|show)/
+    ];
+
+    return animeVietSubPatterns.some(pattern => pattern.test(hostname));
+  } catch (e) {
+    return false;
+  }
+}
+
+// Get all supported domains (built-in + custom)
+async function getAllSupportedDomains() {
+  const builtInDomains = [
+    'https://animevietsub.show',
+    // Chỉ giữ lại tên miền chính, các tên miền khác sẽ được phát hiện tự động
+  ];
+  
+  try {
+    const result = await chrome.storage.local.get(['customDomains']);
+    const customDomains = result.customDomains || [];
+    return [...builtInDomains, ...customDomains];
+  } catch (error) {
+    console.error('Error getting supported domains:', error);
+    return builtInDomains;
+  }
+}
+
+// Listen for tab updates to inject content script for custom domains
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab.url) {
+    try {
+      // Check if URL matches AnimeVietSub patterns (automatic detection)
+      const isAnimeVietSub = isAnimeVietSubDomain(tab.url);
+      
+      // Also check custom domains
+      const result = await chrome.storage.local.get(['customDomains']);
+      const customDomains = result.customDomains || [];
+      
+      const matchesCustomDomain = customDomains.some(domain => {
+        try {
+          const tabUrl = new URL(tab.url);
+          const customUrl = new URL(domain);
+          return tabUrl.hostname === customUrl.hostname;
+        } catch (e) {
+          return false;
+        }
+      });
+
+      if (isAnimeVietSub || matchesCustomDomain) {
+        console.log(`AnimeVietSub domain detected: ${tab.url} (auto: ${isAnimeVietSub}, custom: ${matchesCustomDomain})`);
+        
+        // Check if content script is already injected
+        try {
+          await chrome.tabs.sendMessage(tabId, { action: 'ping' });
+        } catch (e) {
+          // Content script not present, inject it
+          try {
+            await chrome.scripting.executeScript({
+              target: { tabId: tabId },
+              files: ['content.js']
+            });
+            console.log(`Content script injected into AnimeVietSub tab: ${tab.url}`);
+          } catch (injectError) {
+            console.log(`Failed to inject content script:`, injectError);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error handling tab update:', error);
+    }
+  }
 });
 
 // Khởi tạo khi extension được install
@@ -595,5 +783,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
         url: chrome.runtime.getURL('setup.html')
       });
     }
+  }
+
+  // Inject content scripts into existing tabs for custom domains
+  if (details.reason === 'install' || details.reason === 'update') {
+    setTimeout(() => {
+      injectContentScriptForCustomDomains();
+    }, 1000);
   }
 });

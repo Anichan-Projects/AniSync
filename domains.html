@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AniSync - Quản lý tên miền</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Light theme (default) */
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    /* Dark theme */
+    body.dark-theme {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #e0e0e0;
+    }
+
+    body.dark-theme .container {
+      background: rgba(20, 20, 30, 0.95);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      color: #e0e0e0;
+    }
+
+    body.dark-theme input, body.dark-theme textarea {
+      background: #1e1e2e;
+      border-color: #3a3a4a;
+      color: #e0e0e0;
+    }
+
+    body.dark-theme select {
+      background: #1e1e2e;
+      border-color: #3a3a4a;
+      color: #e0e0e0;
+    }
+
+    body.dark-theme input:focus, body.dark-theme select:focus, body.dark-theme textarea:focus {
+      border-color: #8b9dc3;
+    }
+
+    body.dark-theme label {
+      color: #e0e0e0;
+    }
+
+    body.dark-theme .help-text {
+      color: #d0d0d0;
+    }
+
+    body.dark-theme .btn-secondary {
+      background: #495057;
+    }
+
+    body.dark-theme .section {
+      background: #2a2a3a;
+      border-left-color: #8b9dc3;
+    }
+
+    body.dark-theme .section h3 {
+      color: #e0e0e0;
+    }
+
+    body.dark-theme .domain-item {
+      background: #1e1e2e;
+      border-color: #3a3a4a;
+    }
+
+    body.dark-theme .domain-item:hover {
+      background: #2a2a3a;
+    }
+
+    body.dark-theme .domain-item.built-in {
+      background: #1a2a1a;
+      border-color: #4CAF50;
+    }
+
+    body.dark-theme .domain-item.custom {
+      background: #2a241a;
+      border-color: #ff9800;
+    }
+
+    body.dark-theme .message.error {
+      background: #4a2426;
+      color: #f8d7da;
+      border-color: #721c24;
+    }
+
+    body.dark-theme .message.info {
+      background: #1f3a42;
+      color: #d1ecf1;
+      border-color: #0c5460;
+    }
+
+    body.dark-theme .subtitle {
+      color: #d0d0d0;
+    }
+
+    body.dark-theme .domain-url {
+      color: #d0d0d0;
+    }
+
+    body.dark-theme p {
+      color: #d0d0d0;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .language-selector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    select {
+      padding: 8px 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    select:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .theme-toggle {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .section {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+
+    .section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .current-domains {
+      margin-bottom: 20px;
+    }
+
+    .domain-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .domain-item {
+      background: #f8f9fa;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .domain-item.built-in {
+      background: #e8f5e8;
+      border-color: #4CAF50;
+    }
+
+    .domain-item.custom {
+      background: #fff3e0;
+      border-color: #ff9800;
+    }
+
+    .domain-url {
+      font-family: monospace;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .domain-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-builtin {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .badge-custom {
+      background: #ff9800;
+      color: white;
+    }
+
+    .remove-btn {
+      background: #f44336;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .remove-btn:hover {
+      background: #d32f2f;
+    }
+
+    .add-domain {
+      margin-top: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+      transition: all 0.2s ease;
+    }
+
+    .input-group input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #e9ecef;
+      color: #333;
+    }
+
+    .btn-cleanup {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-cleanup:disabled {
+      background: #6c757d;
+      opacity: 0.6;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    .message.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    .actions {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e9ecef;
+    }
+
+    .actions .btn {
+      margin: 0 5px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">AniSync</div>
+      <div class="subtitle" data-translate="domains.subtitle">Quản lý tên miền AnimeVietSub</div>
+      <div class="language-selector">
+        <select id="languageSelect">
+          <option value="vi">Tiếng Việt</option>
+          <option value="en">English</option>
+        </select>
+        <button id="themeToggle" class="theme-toggle">
+          <span id="themeIcon">🌙</span>
+          <span id="themeText" data-translate="domains.darkMode">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 data-translate="domains.supportedTitle">Tên miền được hỗ trợ</h3>
+      <p class="help-text" data-translate="domains.supportedDesc">
+        Extension sẽ <strong>tự động phát hiện và hoạt động</strong> trên hầu hết các tên miền của AnimeVietSub (ví dụ: animevietsub.show, ...). Chỉ cần thêm tên miền tùy chỉnh nếu extension không tự động hoạt động.
+      </p>
+      
+      <div class="current-domains">
+        <ul class="domain-list" id="domainList">
+          <!-- Domains will be populated by JavaScript -->
+        </ul>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 data-translate="domains.addCustomTitle">Thêm tên miền tùy chỉnh</h3>
+      <p class="help-text" data-translate="domains.addCustomDesc">
+        <strong>Chỉ cần thêm tên miền nếu extension không tự động hoạt động.</strong> Extension đã có khả năng tự động phát hiện hầu hết các tên miền AnimeVietSub. Nếu bạn thấy extension không hoạt động trên một tên miền nào đó, hãy thêm vào đây.
+      </p>
+      
+      <div class="add-domain">
+        <div class="input-group">
+          <input type="text" id="newDomainInput" data-translate-placeholder="domains.inputPlaceholder" placeholder="Ví dụ: animevietsub.cc hoặc https://animevietsub.xyz">
+          <button class="btn" id="addDomainBtn" data-translate="domains.addBtn">Thêm</button>
+        </div>
+        <div class="help-text" data-translate="domains.inputHelp">
+          Có thể nhập tên miền với hoặc không có "https://". Extension sẽ tự động bổ sung.
+        </div>
+      </div>
+    </div>
+
+    <div id="messageContainer"></div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" id="closeBtn" data-translate="domains.close">Đóng</button>
+      <button class="btn" id="testDomainsBtn" data-translate="domains.testConnection">Kiểm tra kết nối</button>
+      <button class="btn btn-cleanup" id="cleanupDomainsBtn" data-translate="domains.cleanup">Xóa tên miền lỗi</button>
+    </div>
+  </div>
+
+  <script src="domains.js"></script>
+</body>
+</html>

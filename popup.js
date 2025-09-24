@@ -32,6 +32,7 @@ const translations = {
     publicActivity: "Tạo activity công khai",
     language: "Ngôn ngữ",
     openSettings: "Cài đặt",
+    manageDomains: "Quản lý tên miền",
     
     // Footer
     footer: "AniSync v1.0.0 • Made with ❤️",
@@ -98,6 +99,7 @@ const translations = {
     publicActivity: "Create public activity",
     language: "Language",
     openSettings: "Setup",
+    manageDomains: "Manage Domains",
     
     // Footer
     footer: "AniSync v1.0.0 • Made with ❤️",
@@ -272,6 +274,11 @@ class PopupManager {
     // Open settings button
     document.getElementById('open-settings-btn').addEventListener('click', () => {
       this.openSettings();
+    });
+
+    // Manage domains button
+    document.getElementById('manage-domains-btn').addEventListener('click', () => {
+      this.openDomainManager();
     });
   }
 
@@ -685,6 +692,23 @@ class PopupManager {
     }
   }
 
+  // Mở trang quản lý tên miền
+  openDomainManager() {
+    try {
+      // Mở trang quản lý tên miền trong tab mới
+      chrome.tabs.create({
+        url: chrome.runtime.getURL('domains.html')
+      });
+      
+      // Đóng popup
+      window.close();
+    } catch (error) {
+      console.error('Error opening domain manager:', error);
+      const t = translations[this.settings.language];
+      this.showError('Không thể mở trang quản lý tên miền');
+    }
+  }
+
   // Kiểm tra hoạt động hiện tại (deprecated, sử dụng updateCurrentAnimeInfo)
   async checkCurrentActivity() {
     await this.updateCurrentAnimeInfo();
@@ -860,6 +884,12 @@ class PopupManager {
     const openSettingsText = document.querySelector('#open-settings-text');
     if (openSettingsText) {
       openSettingsText.textContent = t.openSettings;
+    }
+
+    // Manage domains button
+    const manageDomainsText = document.querySelector('#manage-domains-text');
+    if (manageDomainsText) {
+      manageDomainsText.textContent = t.manageDomains;
     }
     
     // Footer

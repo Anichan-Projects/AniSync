@@ -7,18 +7,19 @@
     "storage",
     "activeTab",
     "identity",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
 
   "host_permissions": [
     "*://anilist.co/*",
     "*://graphql.anilist.co/*",
-    "*://animevietsub.show/*"
+    "<all_urls>"
   ],
   "content_scripts": [
     {
       "matches": [
-      "*://animevietsub.show/*"
+        "<all_urls>"
       ],
       "js": ["content.js"],
       "run_at": "document_end"
@@ -45,10 +46,8 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["injected.js"],
-      "matches": [
-      "*://animevietsub.show/*"
-      ]
+      "resources": ["injected.js", "domains.html", "domains.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
