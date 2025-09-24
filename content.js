@@ -208,24 +208,12 @@ class AnimeVsubTracker {
   detectAnimeInfo() {
     console.log('Starting anime detection on:', window.location.href);
     
-    // Thử lấy tên tiếng Anh trước (để search AniList)
+    // Chỉ tìm tên tiếng Anh (để search AniList)
     const englishTitleSelectors = [
       '/html/body/div[1]/div[1]/div/div[3]/main/article/header/h2', // Subtitle tiếng Anh
       '.english-title',
       '.subtitle',
       '[data-english-title]'
-    ];
-    
-    // Fallback: tên tiếng Việt
-    const vietnameseTitleSelectors = [
-      '.film-name a',
-      '.breadcrumb-item:last-child', 
-      'h1.film-title',
-      '.anime-title',
-      '.movie-title',
-      '.entry-title',
-      '.page-title',
-      'title'
     ];
     
     const episodeSelectors = [
@@ -241,7 +229,7 @@ class AnimeVsubTracker {
     let animeTitle = null;
     let episodeNumber = null;
     
-    // Ưu tiên lấy tên tiếng Anh trước
+    // Chỉ tìm tên tiếng Anh
     console.log('Looking for English title...');
     
     // Thử lấy từ XPath selector
@@ -268,34 +256,10 @@ class AnimeVsubTracker {
       }
     }
     
-    // Nếu không tìm thấy tên tiếng Anh, dùng tên tiếng Việt
+    // Nếu không tìm thấy tên tiếng Anh, không làm gì cả
     if (!animeTitle) {
-      console.log('English title not found, using Vietnamese title...');
-      for (const selector of vietnameseTitleSelectors) {
-        const element = document.querySelector(selector);
-        if (element && element.textContent.trim()) {
-          animeTitle = element.textContent.trim();
-          console.log('Found Vietnamese title:', animeTitle);
-          break;
-        }
-      }
-    }
-    
-    // Fallback: lấy từ URL
-    if (!animeTitle) {
-      const urlPath = window.location.pathname;
-      console.log('Analyzing URL path:', urlPath);
-      
-      // Thử các pattern khác nhau
-      let matches = urlPath.match(/\/anime\/([^\/]+)/) ||
-                   urlPath.match(/\/phim\/([^\/]+)/) ||
-                   urlPath.match(/\/([^\/]+)-tap-\d+/) ||
-                   urlPath.match(/\/([^\/]+)-episode-\d+/);
-      
-      if (matches) {
-        animeTitle = matches[1].replace(/-/g, ' ').replace(/_/g, ' ');
-        console.log('Extracted anime title from URL:', animeTitle);
-      }
+      console.log('English title not found, skipping detection');
+      return;
     }
     
     // Thử lấy episode number
