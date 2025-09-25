@@ -605,6 +605,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           return true; // Keep message channel open for async response
           break;
 
+        case 'getDomains':
+          try {
+            const builtInDomains = [
+              'animevietsub.show',
+              // Các domain sẽ được phát hiện tự động qua patterns
+            ];
+            
+            const result = await chrome.storage.local.get(['customDomains']);
+            const customDomains = result.customDomains || [];
+            
+            console.log('Retrieved domains - Built-in:', builtInDomains, 'Custom:', customDomains);
+            sendResponse({ 
+              success: true, 
+              builtInDomains, 
+              customDomains,
+              allDomains: [...builtInDomains, ...customDomains]
+            });
+          } catch (getError) {
+            console.error('Get domains error:', getError);
+            sendResponse({ success: false, error: getError.message });
+          }
+          return true;
+          break;
+
         default:
           sendResponse({ success: false, error: 'Unknown action' });
       }

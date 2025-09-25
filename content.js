@@ -838,15 +838,69 @@ class AnimeVsubTracker {
   }
 }
 
+// Kiểm tra xem có phải domain được phép không
+async function isAllowedDomain() {
+  try {
+    // Lấy danh sách domain từ storage (từ domains.js)
+    const response = await chrome.runtime.sendMessage({ action: 'getDomains' });
+    
+    if (!response.success) {
+      console.log('Cannot get domains list, extension will not run');
+      return false;
+    }
+    
+    const customDomains = response.customDomains || [];
+    const builtInDomains = response.builtInDomains || [];
+    const allDomains = [...customDomains, ...builtInDomains];
+    
+    const currentHostname = window.location.hostname.toLowerCase();
+    
+    // Kiểm tra xem domain hiện tại có trong danh sách không
+    const isAllowed = allDomains.some(domain => {
+      // Loại bỏ protocol nếu có
+      const cleanDomain = domain.replace(/^https?:\/\//, '').toLowerCase();
+      
+      // Kiểm tra exact match hoặc subdomain
+      return currentHostname === cleanDomain || 
+             currentHostname.endsWith('.' + cleanDomain) ||
+             cleanDomain.includes(currentHostname);
+    });
+    
+    if (isAllowed) {
+      console.log(`Domain ${currentHostname} is in allowed list`);
+    } else {
+      console.log(`Domain ${currentHostname} is NOT in allowed list. Available domains:`, allDomains);
+    }
+    
+    return isAllowed;
+    
+  } catch (error) {
+    console.error('Error checking domain:', error);
+    return false;
+  }
+}
+
 // Khởi tạo tracker khi DOM ready
 console.log('AniList Sync content script loaded on:', window.location.href);
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing tracker');
+// Chỉ chạy trên domain được phép (từ domains list)
+isAllowedDomain().then(allowed => {
+  if (!allowed) {
+    console.log('Domain not in allowed list, skipping initialization');
+    return;
+  }
+  
+  console.log('Domain is allowed, initializing tracker');
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded, initializing tracker');
+      new AnimeVsubTracker();
+    });
+  } else {
+    console.log('DOM already loaded, initializing tracker');
     new AnimeVsubTracker();
-  });
-} else {
-  console.log('DOM already loaded, initializing tracker');
-  new AnimeVsubTracker();
-}
+  }
+}).catch(error => {
+  console.error('Error during domain check:', error);
+});
